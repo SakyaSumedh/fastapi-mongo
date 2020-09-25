@@ -1,0 +1,4 @@
+fastapi==0.61.1
+uvicorn==0.11.8
+pydantic[email]  # email-validator
+motor==2.3.0  # async MongoDB driver
