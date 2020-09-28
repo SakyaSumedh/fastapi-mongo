@@ -1,11 +1,21 @@
+import urllib.parse as parser
+
+from decouple import config
+
 import motor.motor_asyncio as mongo_client
 from bson.objectid import ObjectId
 
-MONGO_DETAILS = "mongodb://root:p%40ssw0rd@localhost:27017/?authSource=admin"
+DB_USER = config("DB_USER")
+DB_PASSWORD = parser.quote(config("DB_PASSWORD"))
+DB_HOST = config("DB_HOST")
+DB_PORT = config("DB_PORT")
+DB_NAME = config("DB_NAME")
 
-client = mongo_client.AsyncIOMotorClient(MONGO_DETAILS)
+MONGO_DETAILS = f"mongodb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/?authSource=admin"
 
-database = client.students
+client = mongo_client.AsyncIOMotorClient(MONGO_DETAILS, uuidRepresentation="standard")
+
+database = client[DB_NAME]
 
 student_collection = database.get_collection("students_collection")
 
@@ -34,7 +44,7 @@ def student_helper(student) -> dict:
 async def retrive_students():
     students = []
     async for student in student_collection.find():
-        students.append(student_helper(student)
+        students.append(student_helper(student))
     return students
 
 
