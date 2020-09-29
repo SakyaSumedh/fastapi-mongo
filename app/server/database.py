@@ -7,11 +7,10 @@ from bson.objectid import ObjectId
 
 DB_USER = config("DB_USER")
 DB_PASSWORD = parser.quote(config("DB_PASSWORD"))
-DB_HOST = config("DB_HOST")
-DB_PORT = config("DB_PORT")
+DB_CLUSTER = config("DB_CLUSTER")
 DB_NAME = config("DB_NAME")
 
-MONGO_DETAILS = f"mongodb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/?authSource=admin"
+MONGO_DETAILS = f"mongodb+srv://{DB_USER}:{DB_PASSWORD}@{DB_CLUSTER}.mongodb.net/{DB_NAME}?retryWrites=true&w=majority"
 
 client = mongo_client.AsyncIOMotorClient(MONGO_DETAILS, uuidRepresentation="standard")
 
@@ -41,7 +40,7 @@ def student_helper(student) -> dict:
 
 
 # List all students
-async def retrive_students():
+async def retrieve_students():
     students = []
     async for student in student_collection.find():
         students.append(student_helper(student))
@@ -51,12 +50,14 @@ async def retrive_students():
 # Add a new student
 async def add_student(student_data: dict) -> dict:
     student = await student_collection.insert_one(student_data)
-    new_student = await student_collection.find_one({"_id": student.inserted_id})
+    new_student = await student_collection.find_one(
+        {"_id": student.inserted_id}
+    )
     return student_helper(new_student)
 
 
 # Retrieve a student with a matching ID
-async def retrive_student(id: str) -> dict:
+async def retrieve_student(id: str) -> dict:
     student = await student_collection.find_one({"_id": ObjectId(id)})
     if student:
         return student_helper(student)
